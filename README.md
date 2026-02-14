@@ -1,3 +1,5 @@
+## Objective
+
 This project aims to investigate behavioral and lifestyle factors 
 associated with student depression using structured exploratory 
 data analysis and statistical reasoning.
@@ -32,3 +34,41 @@ pure predictive modeling.
 - Correlation analysis among numeric features
 
 All visual outputs are saved for reproducible research reporting.
+
+---
+
+## Exploratory Data Analysis Results
+
+The following visualizations summarize key behavioral and lifestyle
+patterns associated with student depression.
+
+### Depression Distribution
+
+![Depression Distribution](artifacts/depression_distribution.png)
+
+This chart shows the prevalence of depression within the dataset,
+providing a baseline understanding of class balance for further analysis.
+
+---
+
+### Age Distribution
+![Age Distribution](artifacts/age_distribution.png)
+
+The histogram illustrates the demographic age structure of the student
+population, which may influence mental health risk patterns.
+
+---
+
+### Sleep Duration vs Depression
+![Sleep vs Depression](artifacts/sleep_vs_depression.png)
+
+This visualization explores whether reduced sleep duration is associated
+with higher depression prevalence, a commonly reported psychological factor.
+
+---
+
+### Feature Correlation Heatmap
+![Correlation Heatmap](artifacts/correlation_heatmap.png)
+
+The heatmap highlights statistical relationships among numeric variables,
+helping identify potential predictors and confounding factors related to depression.
