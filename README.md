@@ -1,20 +1,18 @@
-## Objective
+## Research Objective 
 
-This project aims to investigate behavioral and lifestyle factors 
-associated with student depression using structured exploratory 
-data analysis and statistical reasoning.
+This project conducts a reproducible statistical investigation of behavioral and lifestyle factors associated with student depression.
 
-The study focuses on identifying meaningful relationships between:
+Rather than focusing on predictive modeling, the study emphasizes:
 
-- Sleep duration
-- Academic and work pressure
-- Financial stress
-- Lifestyle habits
+Statistical significance testing
 
-and their potential contribution to depression risk.
+Effect size estimation
 
-The goal is to produce interpretable research insights rather than 
-pure predictive modeling.
+Behavioral interpretation of results
+
+Research-grade visualization and documentation
+
+The goal is to simulate the analytical workflow of a university research programmer supporting mental health studies.
 
 ---
 

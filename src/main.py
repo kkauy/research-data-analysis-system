@@ -14,6 +14,8 @@ def main():
     print("Loading dataset...")
     df = load_student_data(data_path)
 
+    print(df["depression"].dtype)
+
     print("Running research EDA...")
     run_basic_eda(df, output_dir)
 
@@ -26,6 +28,10 @@ def main():
     print("Research EDA completed.")
 
     print(f"Artifacts saved to: {output_dir}")
+
+    sleep_col_candidates = [c for c in df.columns if "sleep" in c]
+    print("Sleep-like columns:", sleep_col_candidates)
+
 
 if __name__ == "__main__":
     main()
