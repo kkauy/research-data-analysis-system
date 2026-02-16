@@ -17,6 +17,7 @@ def sleep_vs_depression(df: pd.DataFrame,
                         dep_col: str = "depression") -> dict:
     # keep only needed cols and drop missing
     tmp = df[[sleep_col, dep_col]].copy()
+    #make sure no NaN for Mann–Whitney U
     tmp = tmp.dropna(subset=[sleep_col, dep_col])
 
     # groups

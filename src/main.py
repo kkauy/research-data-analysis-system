@@ -2,7 +2,7 @@ from pathlib import Path
 from data_loader import load_student_data
 from eda import run_basic_eda
 from stats_analysis import run_statistical_analysis
-
+from model import run_logistic_pipeline
 
 def main():
     # project root
@@ -37,6 +37,11 @@ def main():
     sleep_col_candidates = [c for c in df.columns if "sleep" in c]
     print("Sleep-like columns:", sleep_col_candidates)
 
+    features = ["sleep_duration", "age", "cgpa", "academic_pressure", "work_study_hours"]
+
+    ml_results = run_logistic_pipeline(df, features)
+    print("\nML Results dict:")
+    print(ml_results)
 
 if __name__ == "__main__":
     main()
