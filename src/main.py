@@ -1,6 +1,8 @@
 from pathlib import Path
 from data_loader import load_student_data
 from eda import run_basic_eda
+from stats_analysis import run_statistical_analysis
+
 
 def main():
     # project root
@@ -18,6 +20,9 @@ def main():
 
     print("Running research EDA...")
     run_basic_eda(df, output_dir)
+
+    results_dir = project_root / "results"
+    run_statistical_analysis(df, results_dir)
 
     print("\nDataset loaded successfully.")
     print("Shape:", df.shape)

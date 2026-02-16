@@ -1,3 +1,5 @@
+# Student Depression Behavioral Analysis
+ 
 ## Research Objective 
 
 This project conducts a reproducible statistical investigation of behavioral and lifestyle factors associated with student depression.
@@ -70,3 +72,27 @@ with higher depression prevalence, a commonly reported psychological factor.
 
 The heatmap highlights statistical relationships among numeric variables,
 helping identify potential predictors and confounding factors related to depression.
+
+---
+
+# Statistical Inference
+
+## Sleep Duration and Depression
+
+A Mann–Whitney U test revealed a statistically significant difference in sleep duration between students with and without depression  
+(**p = 6.34 × 10⁻⁶⁰**).
+
+Students with depression slept fewer hours on average  
+(**M = 5.82**) compared to non-depressed students (**M = 6.51**),  
+with a **small-to-moderate effect size** (**Cohen’s d = 0.28**).
+
+This finding suggests that **reduced sleep duration is meaningfully associated with depression risk** in the student population.
+
+---
+
+## Reproducibility
+
+To reproduce the full analysis pipeline:
+
+```bash
+python src/main.py

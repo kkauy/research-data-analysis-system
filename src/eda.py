@@ -33,7 +33,7 @@ def run_basic_eda(df: pd.DataFrame, output_dir: Path):
 
     # Sleep vs Depression
     plt.figure()
-    sns.boxplot(x="depression", y="sleepduration", data=df)
+    sns.boxplot(x="depression", y="sleep_duration", data=df)
     plt.title("Sleep Duration vs Depression")
     plt.savefig(output_dir / "sleep_vs_depression.png")
     plt.close()

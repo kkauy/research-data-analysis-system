@@ -1,0 +1,2 @@
+factor,outcome,test,u_stat,p_value,effect_size_cohens_d,n_depr0,n_depr1,mean_depr0,mean_depr1
+sleep_duration,depression,Mann-Whitney U,28370194.5,6.344870210159462e-60,0.27946361002981773,5915,8439,6.507185122569738,5.823675790970494
