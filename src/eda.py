@@ -21,21 +21,21 @@ def run_basic_eda(df: pd.DataFrame, output_dir: Path):
     plt.figure()
     df["depression"].value_counts().plot(kind="bar")
     plt.title("Depression Distribution")
-    plt.savefig(output_dir / "depression_distribution.png")
+    plt.savefig(output_dir / "depression_distribution.png", dpi=300, bbox_inches="tight")
     plt.close()
 
     # Age distribution
     plt.figure()
     sns.histplot(df["age"], bins=20, kde=True)
     plt.title("Age Distribution")
-    plt.savefig(output_dir / "age_distribution.png")
+    plt.savefig(output_dir / "age_distribution.png", dpi=300, bbox_inches="tight")
     plt.close()
 
     # Sleep vs Depression
     plt.figure()
     sns.boxplot(x="depression", y="sleep_duration", data=df)
     plt.title("Sleep Duration vs Depression")
-    plt.savefig(output_dir / "sleep_vs_depression.png")
+    plt.savefig(output_dir / "sleep_vs_depression.png", dpi=300, bbox_inches="tight")
     plt.close()
 
     # Correlation heatmap
@@ -43,7 +43,7 @@ def run_basic_eda(df: pd.DataFrame, output_dir: Path):
     corr = df.corr(numeric_only=True)
     sns.heatmap(corr, cmap="coolwarm")
     plt.title("Feature Correlation Heatmap")
-    plt.savefig(output_dir / "correlation_heatmap.png")
+    plt.savefig(output_dir / "correlation_heatmap.png",  dpi=300, bbox_inches="tight")
     plt.close()
 
     print("\nEDA visualizations saved to:", output_dir)

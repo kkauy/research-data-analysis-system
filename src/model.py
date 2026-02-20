@@ -10,7 +10,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import RobustScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
-
+from sklearn.metrics import roc_curve
+import matplotlib.pyplot as plt
+import os
 
 @dataclass
 class ModelResult:
@@ -98,6 +100,21 @@ def run_logistic_pipeline(
     acc = accuracy_score(y_test, y_pred)
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+
+    # ROC curve
+    fpr, tpr, thresholds = roc_curve(y_test, y_prob)
+
+    plt.figure()
+    plt.plot(fpr, tpr, label=f"AUC = {auc:.3f}")
+    plt.plot([0, 1], [0, 1], linestyle="--")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC Curve - Logistic Regression")
+    plt.legend(loc="lower right")
+
+    os.makedirs("artifacts", exist_ok=True)
+    plt.savefig("artifacts/roc_curve.png", dpi=300)
+    plt.close()
 
     res = ModelResult(
         model="LogisticRegression+RobustScaler(Pipeline)",
