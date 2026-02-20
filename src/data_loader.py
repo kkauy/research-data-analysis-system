@@ -26,6 +26,7 @@ def parse_sleep(x):
     -'More than 8 hours'
     -'7 hours'
     """
+    #Null check
     if pd.isna(x):
         return None
 
@@ -36,17 +37,18 @@ def parse_sleep(x):
     s = str(x).strip().lower()
 
     #normalize
-    s = s.replace("hours","").replace("hours","").strip()
+    s = s.replace("hours","").replace("hour","").strip()
 
     if "less than" in s:
         return 4.0
     if "more than" in s:
         return 9.0
-    if  "_" in s:
-        parts = [p.strip() for p in s.split("_")]
+    if  "-" in s:
+        parts = [p.strip() for p in s.split("-")]
         try:
             a = float(parts[0])
             b = float(parts[1])
+            # find the average
             return (a + b) / 2.0
         except Exception:
             return None
