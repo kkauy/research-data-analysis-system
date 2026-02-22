@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
 
@@ -13,6 +13,8 @@ from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
 from sklearn.metrics import roc_curve
 import matplotlib.pyplot as plt
 import os
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 @dataclass
 class ModelResult:
@@ -28,6 +30,17 @@ class ModelResult:
     fp: int
     fn: int
     tp: int
+    # sample / prevalence
+    n_rows_original: int | None = None
+    n_rows_used: int | None = None
+    dropped_rows: int | None = None
+    pos_rate_original: float | None = None
+    pos_rate_overall: float | None = None
+    # interpretability
+    coefficients: dict | None = None
+    odds_ratios: dict | None = None
+    # artifacts
+    roc_curve_path: str | None = None
 
 
 def run_logistic_pipeline(
@@ -37,6 +50,7 @@ def run_logistic_pipeline(
     test_size: float = 0.2,
     random_state: int = 42,
     verbose: bool = True,
+    artifacts_dir: Path | None = None,
 ) -> Dict[str, Any]:
     """
     Train + evaluate a Logistic Regression binary classifier using a Pipeline.
@@ -46,6 +60,9 @@ def run_logistic_pipeline(
     - Reproducible preprocessing
     - Deployable as one object
     """
+    # before filtering
+    n_rows_original = int(len(df))
+    pos_rate_original = float(pd.to_numeric(df[target_col], errors="coerce").mean())
 
     # 1) Select needed columns + drop missing
     needed = feature_cols + [target_col]
@@ -53,26 +70,35 @@ def run_logistic_pipeline(
     before = len(data)
 
     data = data.replace([np.inf, -np.inf], np.nan)
-    data = data.dropna(subset=needed)
-    after = len(data)
 
     # numeric dtype (robust)
     for c in feature_cols:
         data[c] = pd.to_numeric(data[c], errors="coerce")
     data[target_col] = pd.to_numeric(data[target_col], errors="coerce")
 
+    # Complete-case filtering
     data = data.dropna(subset=needed)
     after = len(data)
+    dropped_rows = before -after
+
+    if after == 0:
+        raise ValueError("After complete-case filtering, no rows remain. Check missingness / column names.")
+
+        # filtered prevalence
+    y_all = data[target_col].astype(int)
+    pos_rate_overall = float(y_all.mean())
 
     if verbose:
         print("\n=== Logistic Regression Pipeline: Data validity ===")
         print(f"Rows before dropna: {before}")
         print(f"Rows after dropna:  {after}")
         print(f"Dropped rows:       {before - after}")
+        print(f"Prevalence (original df): {pos_rate_original:.4f}")
+        print(f"Prevalence (filtered):    {pos_rate_overall:.4f}")
 
     # 2) Split X/y
     X = data[feature_cols]
-    y = data[target_col].astype(int)
+    y = y_all
 
     # 3) Train/test split (stratify keeps class ratio stable)
     X_train, X_test, y_train, y_test = train_test_split(
@@ -98,7 +124,6 @@ def run_logistic_pipeline(
     # 7) Evaluate
     auc = roc_auc_score(y_test, y_prob)
     acc = accuracy_score(y_test, y_pred)
-
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
 
     # ROC curve
@@ -107,13 +132,15 @@ def run_logistic_pipeline(
     plt.figure()
     plt.plot(fpr, tpr, label=f"AUC = {auc:.3f}")
     plt.plot([0, 1], [0, 1], linestyle="--")
+    plt.grid(alpha=0.3)
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
     plt.title("ROC Curve - Logistic Regression")
     plt.legend(loc="lower right")
 
-    os.makedirs("artifacts", exist_ok=True)
-    plt.savefig("artifacts/roc_curve.png", dpi=300)
+    out_dir = artifacts_dir if artifacts_dir is not None else Path("artifacts")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    plt.savefig(out_dir / "roc_curve.png", dpi=300, bbox_inches="tight")
     plt.close()
 
     res = ModelResult(
@@ -140,7 +167,17 @@ def run_logistic_pipeline(
         print("\nConfusion matrix:")
         print(f"TN={res.tn}, FP={res.fp}, FN={res.fn}, TP={res.tp}")
 
-    return res.__dict__
+    out = res.__dict__
+    # metadata for research traceability
+    out.update({
+        "n_rows_original": n_rows_original,
+        "pos_rate_original": pos_rate_original,
+        "n_rows_used": after,
+        "dropped_rows": dropped_rows,
+        "pos_rate_overall": pos_rate_overall,
+        "roc_curve_path": str(out_dir / "roc_curve.png"),
+    })
+    return out
 
 def run_cross_validation_auc(
     df: pd.DataFrame,
