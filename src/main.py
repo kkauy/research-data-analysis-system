@@ -44,8 +44,6 @@ def main():
     run_basic_eda(df, artifacts_dir)
     print(f"EDA artifacts saved to: {artifacts_dir}")
 
-
-
     # ---- 4) Statistical inference ----
     print("\nRunning statistical analysis...")
     run_statistical_analysis(df, results_dir)
@@ -60,7 +58,7 @@ def main():
     print_data_quality(df[features + ["depression"]])
 
     print("\nRunning single split baseline (Logistic Regression)...")
-    ml_results = run_logistic_pipeline(df, features)
+    ml_results = run_logistic_pipeline(df, features, artifacts_dir=artifacts_dir)
     print("\nML Results dict:")
     print(ml_results)
 
@@ -68,6 +66,7 @@ def main():
     cv_res = run_cross_validation_auc(df, features, n_splits=5)
     print("\nCV Results dict:")
     print(cv_res)
+
 
 
 if __name__ == "__main__":

@@ -2,7 +2,8 @@ from __future__ import annotations
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
-
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, StratifiedKFold
@@ -77,7 +78,7 @@ def run_logistic_pipeline(
     data[target_col] = pd.to_numeric(data[target_col], errors="coerce")
 
     # Complete-case filtering
-    data = data.dropna(subset=needed)
+    data = data.dropna(subset=[target_col])
     after = len(data)
     dropped_rows = before -after
 
@@ -110,10 +111,10 @@ def run_logistic_pipeline(
 
     # 4) Build pipeline
     pipeline = Pipeline([
+        ("imputer", IterativeImputer(max_iter=10, random_state=42)),  # 加入 MICE
         ("scaler", RobustScaler()),
         ("model", LogisticRegression(max_iter=5000, solver="liblinear"))
     ])
-
     # 5) Fit
     pipeline.fit(X_train, y_train)
 
@@ -202,7 +203,7 @@ def run_cross_validation_auc(
         data[c] = pd.to_numeric(data[c], errors="coerce")
     data[target_col] = pd.to_numeric(data[target_col], errors="coerce")
 
-    data = data.dropna(subset=needed)
+    data = data.dropna(subset=[target_col])
     after = len(data)
 
     X = data[feature_cols]
@@ -234,6 +235,7 @@ def run_cross_validation_auc(
         y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
         pipeline = Pipeline([
+            ("imputer", IterativeImputer(max_iter=10, random_state=42)),  # 加入 MICE
             ("scaler", RobustScaler()),
             ("model", LogisticRegression(max_iter=5000, solver="liblinear"))
         ])
