@@ -17,6 +17,12 @@ import os
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
+"""
+    Schema for capturing comprehensive model performance and metadata.
+    Includes tracking for data loss (dropped rows) and class prevalence to 
+    monitor potential sampling bias during the filtering process.
+    """
+
 @dataclass
 class ModelResult:
     model: str
@@ -44,6 +50,17 @@ class ModelResult:
     roc_curve_path: str | None = None
 
 
+"""
+    Executes an end-to-end training and evaluation pipeline.
+
+    Technical Highlights:
+    1. Audits data prevalence before and after filtering to ensure representativeness.
+    2. Encapsulates Imputer, Scaler, and Model in a single Pipeline object. 
+       This ensures that preprocessing parameters (e.g., median, scale) are 
+       learned ONLY from the training set, preventing data leakage.
+    3. Exports ROC-AUC visualizations for academic validation.
+    """
+
 def run_logistic_pipeline(
     df: pd.DataFrame,
     feature_cols: List[str],
@@ -61,15 +78,19 @@ def run_logistic_pipeline(
     - Reproducible preprocessing
     - Deployable as one object
     """
-    # before filtering
+    # --- STEP 1: INITIAL DATA AUDIT (Pre-processing Baseline) ---
+    # Record the total number of samples before any filtering to track data loss
     n_rows_original = int(len(df))
+    # Calculate baseline prevalence (class balance) to detect potential sampling bias later
     pos_rate_original = float(pd.to_numeric(df[target_col], errors="coerce").mean())
 
-    # 1) Select needed columns + drop missing
+    # --- STEP 2: DATA CLEANING & SUBSET SELECTION ---
+    # Define features to be used; MUST be initialized before creating the 'needed' list
     needed = feature_cols + [target_col]
     data = df[needed].copy()
     before = len(data)
 
+    # Handle extreme numerical edge cases: replace Infinity with NaN to allow dropna() to catch them
     data = data.replace([np.inf, -np.inf], np.nan)
 
     # numeric dtype (robust)
@@ -110,8 +131,11 @@ def run_logistic_pipeline(
     )
 
     # 4) Build pipeline
+    # IterativeImputer implements MICE (Multivariate Imputation by Chained Equations).
+    # This is preferred over simple mean/median imputation as it preserves the
+    # statistical relationships between lifestyle features (e.g., Sleep vs. Pressure).
     pipeline = Pipeline([
-        ("imputer", IterativeImputer(max_iter=10, random_state=42)),  # 加入 MICE
+        ("imputer", IterativeImputer(max_iter=10, random_state=42)),
         ("scaler", RobustScaler()),
         ("model", LogisticRegression(max_iter=5000, solver="liblinear"))
     ])
@@ -178,6 +202,8 @@ def run_logistic_pipeline(
         "pos_rate_overall": pos_rate_overall,
         "roc_curve_path": str(out_dir / "roc_curve.png"),
     })
+
+    # return as dictionary
     return out
 
 def run_cross_validation_auc(
@@ -197,6 +223,8 @@ def run_cross_validation_auc(
     data = df[needed].copy()
     before = len(data)
 
+    # Defensive Cleaning: Handle numerical edge cases (Inf) and force numeric casting.
+    # This prevents pipeline failure during matrix operations in Logistic Regression.
     data = data.replace([np.inf, -np.inf], np.nan)
 
     for c in feature_cols:

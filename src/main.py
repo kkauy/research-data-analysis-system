@@ -24,6 +24,12 @@ def main():
     print("Loading dataset...")
     df = load_student_data(data_path)
 
+    # ---- EXPERIMENT CONFIGURATION ----
+    # Define the outcome we are investigating (Target Variable)
+    target_col = "depression"
+
+    # Feature Variables (Independent Variables / Predictors):
+    # These features were selected based on domain knowledge of student mental health.
     features = ["sleep_duration", "age", "cgpa", "academic_pressure", "work_study_hours"]
 
     print("\n=== Dataset Overview ===")
@@ -66,7 +72,6 @@ def main():
     cv_res = run_cross_validation_auc(df, features, n_splits=5)
     print("\nCV Results dict:")
     print(cv_res)
-
 
 
 if __name__ == "__main__":
